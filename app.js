@@ -46,7 +46,7 @@
 
   // ---------- State ----------
   function emptyRow(mode) {
-    return { jenis: "", qty: "", satuan: "", harga: "", keterangan: "", total: "", totalMode: mode || "manual" };
+    return { jenis: "", qty: "", satuan: "", harga: "", keterangan: "", total: "", totalMode: mode || "manual", numbered: true };
   }
   function defaultColumns(docType) {
     return docType === "offer"
@@ -111,7 +111,7 @@
       if (Array.isArray(obj.rows) && obj.rows.length) {
         s.rows = obj.rows.map(function (r) {
           var er = emptyRow(r.totalMode);
-          ["jenis", "qty", "satuan", "harga", "keterangan", "total", "totalMode"].forEach(function (f) {
+          ["jenis", "qty", "satuan", "harga", "keterangan", "total", "totalMode", "numbered"].forEach(function (f) {
             if (r[f] !== undefined) er[f] = r[f];
           });
           return er;
@@ -165,6 +165,15 @@
       : k === "total" ? "Total" : COL_LABELS[k];
   }
 
+  // Sequential numbers, counting only rows whose number is enabled; others get "".
+  function computeNumbers() {
+    var n = 0;
+    return state.rows.map(function (row) {
+      if (row.numbered === false) return "";
+      n++; return String(n);
+    });
+  }
+
   function renderRows() {
     var head = el("itemsHead");
     var body = el("itemsBody");
@@ -177,20 +186,33 @@
     });
     var thA = document.createElement("th"); thA.textContent = ""; head.appendChild(thA);
 
+    var nums = computeNumbers();
     body.innerHTML = "";
     state.rows.forEach(function (row, i) {
-      body.appendChild(buildRow(row, i, keys));
+      body.appendChild(buildRow(row, i, keys, nums[i]));
     });
   }
 
-  function buildRow(row, i, keys) {
+  function buildRow(row, i, keys, displayNo) {
     var tr = document.createElement("tr");
     keys.forEach(function (k) {
       var td = document.createElement("td");
       td.className = "col-" + k;
       td.setAttribute("data-label", colLabel(k));
       if (k === "no") {
-        td.textContent = i + 1;
+        var wrap = document.createElement("div");
+        wrap.className = "no-cell";
+        var cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = row.numbered !== false;
+        cb.title = "Centang untuk menampilkan nomor baris";
+        cb.setAttribute("data-no-index", i);
+        var num = document.createElement("span");
+        num.className = "no-num";
+        num.textContent = displayNo;
+        wrap.appendChild(cb);
+        wrap.appendChild(num);
+        td.appendChild(wrap);
       } else if (k === "jenis" || k === "keterangan") {
         td.appendChild(makeInput("textarea", k, i, row[k]));
       } else if (k === "total") {
@@ -339,6 +361,12 @@
       if (tmIdx != null) {
         state.rows[tmIdx].totalMode = t.checked ? "auto" : "manual";
         renderRows(); recalcTotals(); save();
+        return;
+      }
+      var noIdx = t.getAttribute("data-no-index");
+      if (noIdx != null) {
+        state.rows[noIdx].numbered = t.checked;
+        renderRows(); save(); // renumber the remaining rows
       }
     });
     // Delegated click for row actions
@@ -440,9 +468,10 @@
       return { text: colLabel(k), bold: true, alignment: "center" };
     });
 
+    var nums = computeNumbers();
     var bodyRows = state.rows.map(function (row, i) {
       return keys.map(function (k) {
-        if (k === "no") return { text: String(i + 1), alignment: "center" };
+        if (k === "no") return { text: nums[i], alignment: "center" };
         if (k === "jenis") return { text: row.jenis || "", bold: false };
         if (k === "keterangan") return { text: row.keterangan || "", alignment: "center", bold: false };
         if (k === "qty") return { text: row.qty || "", alignment: "center", bold: false };

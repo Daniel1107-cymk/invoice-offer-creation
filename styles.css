@@ -231,12 +231,15 @@ input[type="date"] { accent-color: var(--brand); }
 }
 #itemsTable td input, #itemsTable td textarea { padding: 7px 9px; min-width: 70px; border-radius: 5px; }
 #itemsTable td.col-no {
-  text-align: center; width: 36px; min-width: 36px;
-  font-family: var(--mono); color: var(--muted); padding-top: 13px;
+  text-align: center; width: 52px; min-width: 52px;
+  font-family: var(--mono); color: var(--muted); padding-top: 11px;
 }
+.no-cell { display: flex; align-items: center; gap: 5px; justify-content: center; }
+.no-cell input { width: auto; margin: 0; }
+.no-cell .no-num { min-width: 12px; text-align: left; }
 #itemsTable td.col-actions { white-space: nowrap; width: 1%; }
 #itemsTable td.col-qty input, #itemsTable td.col-harga input,
-#itemsTable td.col-total input, #sisaInvoice { font-family: var(--mono); }
+#itemsTable td.col-total input { font-family: var(--mono); }
 .col-jenis textarea, .col-keterangan textarea { min-width: 140px; }
 .total-mode {
   display: flex; align-items: center; gap: 5px;
