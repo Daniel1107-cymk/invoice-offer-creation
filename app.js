@@ -65,7 +65,6 @@
       intro: DEFAULT_INTRO,
       columns: defaultColumns("invoice"),
       rows: [emptyRow("auto")],
-      sisaInvoice: "",
       termOfPayment: "",
       bank1: DEFAULT_BANK1,
       bank2: DEFAULT_BANK2
@@ -123,7 +122,7 @@
   }
 
   // ---------- Render: top-level form ----------
-  var SIMPLE_FIELDS = ["address", "city", "date", "to", "loc", "intro", "sisaInvoice", "termOfPayment", "bank1", "bank2"];
+  var SIMPLE_FIELDS = ["address", "city", "date", "to", "loc", "intro", "termOfPayment", "bank1", "bank2"];
 
   function populateForm() {
     el("docType").value = state.docType;
@@ -275,8 +274,6 @@
       }
     });
     el("totalDisplay").textContent = formatRupiah(sum);
-    var sisa = parseMoney(state.sisaInvoice).value;
-    el("grandDisplay").textContent = formatRupiah(sum + sisa);
     return sum;
   }
 
@@ -301,7 +298,6 @@
       if (!node) return;
       node.addEventListener("input", function () {
         state[id] = this.value;
-        if (id === "sisaInvoice") recalcTotals();
         save();
       });
     });
@@ -476,11 +472,6 @@
     var sum = 0;
     state.rows.forEach(function (r) { var t = rowTotal(r); if (!t.free) sum += t.value; });
     bodyRows.push(spanRow("TOTAL", rpCell(sum, true)));
-    if (state.docType === "offer") {
-      var sisa = parseMoney(state.sisaInvoice).value;
-      bodyRows.push(spanRow("Sisa Invoice Pertama", rpCell(sisa, true)));
-      bodyRows.push(spanRow("GRAND TOTAL", rpCell(sum + sisa, true)));
-    }
 
     var table = {
       table: { headerRows: 1, widths: widths, body: [headerRow].concat(bodyRows) },
