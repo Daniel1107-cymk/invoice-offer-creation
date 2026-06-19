@@ -273,8 +273,27 @@ input[type="date"] { accent-color: var(--brand); }
   }
   #itemsTable td.col-no::before { content: "Baris"; color: var(--muted); flex: 0 0 84px; font-family: var(--mono); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; }
   #itemsTable td.col-total > div { flex: 1; }
-  #itemsTable td.col-actions { justify-content: flex-end; gap: 4px; padding-top: 8px; }
-  #itemsTable td.col-actions::before { content: ""; flex: 0; }
+  #itemsTable td.col-actions {
+    width: 100%;            /* override desktop width:1% (higher specificity) */
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+  #itemsTable td.col-actions::before { content: none; }
+  #itemsTable td.col-actions .btn.icon {
+    flex: 0 0 auto;
+    min-width: 42px; height: 36px;
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    font-size: 1.05rem;
+    background: #fff;
+  }
+  #itemsTable td.col-actions .btn.icon.del {
+    color: var(--brand);
+    border-color: color-mix(in srgb, var(--brand) 40%, var(--line-strong));
+  }
 }
 
 /* ---------- Totals ---------- */
