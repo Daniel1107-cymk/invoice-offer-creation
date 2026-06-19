@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "runtimeExecutable": "C:/Users/danie/AppData/Local/Programs/Python/Python311/python.exe",
+      "runtimeArgs": ["-m", "http.server", "5180"],
+      "port": 5180
+    }
+  ]
+}

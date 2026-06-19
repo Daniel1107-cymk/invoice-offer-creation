@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#14161b" />
+  <title>Buat Invoice / Penawaran PDF</title>
+  <link rel="stylesheet" href="vendor/fonts.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="appbar">
+    <div class="appbar-brand">
+      <img id="brandLogo" class="brand-logo" alt="" />
+      <div class="appbar-titles">
+        <span class="appbar-kicker">Dokumen</span>
+        <h1 id="appTitle">Invoice</h1>
+      </div>
+    </div>
+    <div class="appbar-actions">
+      <button type="button" id="btnPreview" class="btn ghost">Preview</button>
+      <button type="button" id="btnDownload" class="btn primary">Download PDF</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Document type & logo -->
+    <section class="card">
+      <h2>Dokumen</h2>
+      <div class="grid-2">
+        <label class="field">
+          <span>Jenis Dokumen</span>
+          <select id="docType">
+            <option value="invoice">Invoice</option>
+            <option value="offer">Penawaran (Offer)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Logo</span>
+          <select id="logo">
+            <option value="sikon">SIKON</option>
+            <option value="suitus">SUITUS</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- Header info -->
+    <section class="card">
+      <h2>Kop &amp; Tanggal</h2>
+      <label class="field">
+        <span>Alamat (header kanan)</span>
+        <textarea id="address" rows="2"></textarea>
+      </label>
+      <div class="grid-2">
+        <label class="field">
+          <span>Kota</span>
+          <input type="text" id="city" />
+        </label>
+        <label class="field">
+          <span>Tanggal</span>
+          <input type="date" id="date" />
+        </label>
+      </div>
+      <div class="grid-2">
+        <label class="field">
+          <span>To</span>
+          <input type="text" id="to" placeholder="Nama penerima" />
+        </label>
+        <label class="field">
+          <span>Loc</span>
+          <input type="text" id="loc" placeholder="Lokasi" />
+        </label>
+      </div>
+      <label class="field" id="introField">
+        <span>Paragraf Pembuka (Penawaran)</span>
+        <textarea id="intro" rows="3"></textarea>
+      </label>
+    </section>
+
+    <!-- Column toggles -->
+    <section class="card">
+      <h2>Kolom Tabel</h2>
+      <p class="hint">Kolom tetap: No, Jenis Pekerjaan, Total. Pilih kolom tambahan:</p>
+      <div class="toggles">
+        <label class="chk"><input type="checkbox" data-col="qty" /> Qty</label>
+        <label class="chk"><input type="checkbox" data-col="satuan" /> Satuan</label>
+        <label class="chk"><input type="checkbox" data-col="harga" /> Harga</label>
+        <label class="chk"><input type="checkbox" data-col="keterangan" /> Keterangan</label>
+      </div>
+      <div class="row-actions-bar">
+        <span class="hint">Mode Total semua baris:</span>
+        <button type="button" class="btn tiny" data-setall="auto">Auto (Qty×Harga)</button>
+        <button type="button" class="btn tiny" data-setall="manual">Manual</button>
+      </div>
+    </section>
+
+    <!-- Items table -->
+    <section class="card">
+      <h2>Rincian Pekerjaan</h2>
+      <div class="table-scroll">
+        <table id="itemsTable">
+          <thead><tr id="itemsHead"></tr></thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+      </div>
+      <button type="button" id="btnAddRow" class="btn add">+ Tambah Baris</button>
+    </section>
+
+    <!-- Footer / totals -->
+    <section class="card">
+      <h2>Total &amp; Footer</h2>
+      <div class="totals">
+        <div class="total-line"><span>TOTAL</span><strong id="totalDisplay">Rp 0</strong></div>
+        <label class="field offer-only" id="sisaField">
+          <span>Sisa Invoice Pertama</span>
+          <input type="text" id="sisaInvoice" placeholder="0 / Free" />
+        </label>
+        <div class="total-line offer-only" id="grandField">
+          <span>GRAND TOTAL</span><strong id="grandDisplay">Rp 0</strong>
+        </div>
+      </div>
+      <label class="field">
+        <span>Term of Payment</span>
+        <textarea id="termOfPayment" rows="2"></textarea>
+      </label>
+      <label class="field">
+        <span>Rekening 1</span>
+        <input type="text" id="bank1" />
+      </label>
+      <label class="field">
+        <span>Rekening 2</span>
+        <input type="text" id="bank2" />
+      </label>
+    </section>
+
+    <!-- Draft management -->
+    <section class="card">
+      <h2>Draft</h2>
+      <div class="row-actions-bar">
+        <button type="button" id="btnSaveDraft" class="btn ghost">Simpan Draft (.json)</button>
+        <button type="button" id="btnLoadDraft" class="btn ghost">Muat Draft</button>
+        <input type="file" id="draftFile" accept="application/json,.json" hidden />
+      </div>
+      <p class="hint">Draft tersimpan otomatis di browser ini. Gunakan Simpan/Muat untuk memindahkan antar perangkat.</p>
+    </section>
+  </main>
+
+  <!-- Hidden preview frame -->
+  <div id="previewOverlay" class="overlay" hidden>
+    <div class="overlay-bar">
+      <a id="btnOpenTab" class="btn ghost" target="_blank" rel="noopener">Buka di tab baru</a>
+      <button type="button" id="btnClosePreview" class="btn ghost">Tutup</button>
+    </div>
+    <!-- preview <iframe> is created dynamically in app.js (never present at load,
+         so a file:// page can't try to load itself into an empty-src frame) -->
+  </div>
+
+  <script src="vendor/pdfmake.min.js"></script>
+  <script src="vendor/vfs_fonts.js"></script>
+  <script src="vendor/pdf-fonts.js"></script>
+  <script src="assets/logos.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
